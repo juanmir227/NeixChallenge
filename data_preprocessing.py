@@ -59,4 +59,5 @@ el precio del subyacente promedio, y el timeToMaturity considerado en años
 price   underPrice  timeToMaturity
 
 '''
+print('Sus datos han sido procesados correctamente.')
 data.to_csv('processed_data.csv', sep = ';', index = False)
