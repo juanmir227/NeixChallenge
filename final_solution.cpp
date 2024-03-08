@@ -11,42 +11,74 @@ struct CSVData {
     std::vector<double> timeToMaturity;
 };
 
+struct Constantes {
+    const double K = 1033;
+    const double r = 0.9;
+    const double abstol = 1e-4;
+    const double epsilon = 1.0;
+    const int max_iter = 1e3;
+};
+
 CSVData readCSV(const std::string& filename) {
     CSVData data;
 
-    // Open the CSV file
-    std::ifstream file(filename);
+    try {
+        // Open the CSV file
+        std::ifstream file(filename);
 
-    // Check if the file is open
-    if (!file.is_open()) {
-        std::cerr << "Error opening file." << std::endl;
-        return data; // Empty data if file cannot be opened
+        // Check if the file is open
+        if (!file.is_open()) {
+            throw std::ios_base::failure("Error opening file.");
+        }
+
+        std::string line;
+        // Read the header line (assuming the first line is a header)
+        std::getline(file, line);
+
+        // Read the data lines
+        while (std::getline(file, line)) {
+            std::stringstream ss(line);
+            std::string token;
+
+            // Read each column using stringstream
+            std::getline(ss, token, ';');
+            data.price.push_back(std::stod(token));
+
+            std::getline(ss, token, ';');
+            data.underPrice.push_back(std::stod(token));
+
+            std::getline(ss, token, ';');
+            data.timeToMaturity.push_back(std::stod(token));
+        }
+
+        // Close the file
+        file.close();
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << std::endl;
+        // Clear data if an exception occurs
+        data = CSVData();
     }
-
-    std::string line;
-    // Read the header line (assuming the first line is a header)
-    std::getline(file, line);
-
-    // Read the data lines
-    while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string token;
-
-        // Read each column using stringstream
-        std::getline(ss, token, ';');
-        data.price.push_back(std::stod(token));
-
-        std::getline(ss, token, ';');
-        data.underPrice.push_back(std::stod(token));
-
-        std::getline(ss, token, ';');
-        data.timeToMaturity.push_back(std::stod(token));
-    }
-
-    // Close the file
-    file.close();
 
     return data;
+}
+
+void saveToCSV(const std::vector<double>& vec, const std::string& filename) {
+    std::ofstream file(filename);
+
+    if (!file.is_open()) {
+        std::cerr << "Error opening file." << std::endl;
+        return;
+    }
+
+    // Write header
+    file << "Price" << std::endl;
+
+    // Write data
+    for (size_t i = 0; i < vec.size(); ++i) {
+        file << vec[i] << std::endl;
+    }
+
+    file.close();
 }
 
 double PI() {
@@ -65,17 +97,16 @@ double F(double x) {
     return factor*e;
 }
 
+// Explicar que decidi separar las funciones para mayor claridad aunque pago con mas lineas de codigo.
 double D1(double S, double K, double r, double v, double t) {
     double top = log(S / K) + (r + 0.5 * pow(v, 2)) * t;
     double bottom = v * sqrt(t);
     return top / bottom;
 }
 
-
 double D2(double d1, double v, double t) {
     return d1 - v*sqrt(t);
 }
-
 
 // double BlackScholes(double S, double K, double r, double v, double t) {
 double BlackScholes(double d1, double d2, double S, double K, double r, double t) {
@@ -102,19 +133,12 @@ double ImpliedVolatility(double epsilon, double abstol, double i, double max_ite
         double estimation = BlackScholes(d1, d2, S, K, r, t);
         double function_value = estimation - C0;
         double Vega = S * F(d1) * sqrt(t);
-        // std::cout << "F(d1):" << F(d1) << std::endl;
-        // std::cout << "vega:" << Vega << std::endl;
+
         v = -function_value / Vega + v;
         epsilon = std::abs(function_value);
-        // std::cout << "Epsilon value:" << epsilon << std::endl;
-        // std::cout << "implied volatility estimation" << v <<std::endl;
     }
-
-
-    // std::cout << "Code required " << i << " iterations." << std::endl;
     return v;
 }
-
 
 // Function to calculate realized volatility based on adjacent points
 double RealizedVolatility(double underPrice,double timeToMaturity, double initUnderPrice, double initTimeToMaturity) {
@@ -122,7 +146,7 @@ double RealizedVolatility(double underPrice,double timeToMaturity, double initUn
     double logReturn = std::log(underPrice / initUnderPrice );
     double timeDifference = std::abs(timeToMaturity - initTimeToMaturity);
     double realizedVolatility = 0.0;
-        // Ensure timeDifference is not zero to avoid division by zero
+    // Ensure timeDifference is not zero to avoid division by zero
     if (timeDifference > 1e-6) {
         double weightedReturn = pow(logReturn,2) / timeDifference;
         realizedVolatility = std::sqrt((weightedReturn)/2);
@@ -130,31 +154,33 @@ double RealizedVolatility(double underPrice,double timeToMaturity, double initUn
     return realizedVolatility;
 }
 
-
-
+// Decidi definir dos variables para guardarme los puntos anteriores en vez de un vector para no tener que cargarlo todas
+// las veces.
 int main() {
     // Defino variables constantes a utilizar y también agrego mi v inicial para comenzar el loop.
     //  La volatilidad inicial utilizada para el siguiente loop será la obtenida anteriormente.
-    const double K = 1033;
-    const double r = 0.9;
-    const double abstol = 1e-4;
-    const double epsilon = 1.0;
     double v = 0.5;
-    const int max_iter = 1e3;
     double initUnderPrice = 0.0;
     double initTimeToMaturity = 0.0;
     std::vector<double> impliedVols;
     std::vector<double> realizedVols;
-    bool warned = false;
-
+    bool flag1 = false;
+    bool flag2 = false;
+    Constantes constantes;
     // Example usage
     CSVData data = readCSV("processed_data.csv");
+    // const double K = 1033;
+    // const double r = 0.9;
+    // const double abstol = 1e-4;
+    // const double epsilon = 1.0;
+    // const int max_iter = 1e3;
 
     size_t dataSize = data.price.size();
     // checkeo que tengan el mismo largo los vectores
-    if (data.underPrice.size() != dataSize || data.timeToMaturity.size() != dataSize) {
-        std::cerr << "Error: Vectors must have the same size." << std::endl;
-        return 1;
+
+    if ((data.underPrice.size() != dataSize || data.timeToMaturity.size() != dataSize) && (!flag1)) {
+        std::cout << "Cuidado, los vectores cargados del csv no tienen el mismo largo." << std::endl;
+        flag1 = true;
     }
 
     for (size_t i = 0; i < dataSize; ++i) {
@@ -163,7 +189,7 @@ int main() {
         double currentUnderPrice = data.underPrice[i]; //S
         double currentTimeToMaturity = data.timeToMaturity[i]; //t
         int j = 0;
-        double impliedVol = ImpliedVolatility(epsilon, abstol, j, max_iter, currentUnderPrice, K, r, v, currentTimeToMaturity,currentPrice);
+        double impliedVol = ImpliedVolatility(constantes.epsilon, constantes.abstol, j, constantes.max_iter, currentUnderPrice, constantes.K, constantes.r, v, currentTimeToMaturity,currentPrice);
         if (i == 0){
             initUnderPrice = currentUnderPrice;
             initTimeToMaturity = currentTimeToMaturity;
@@ -175,14 +201,17 @@ int main() {
             initTimeToMaturity = currentTimeToMaturity;
         }
 
-        if (std::isnan(impliedVol) == true || impliedVol < 0.0) {
-            if (warned == false) {
-                std::cout << "Tus resultados contienen valores nan o negativos, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
-                warned = true;
-            }
-            continue;
+        if ((std::isnan(impliedVol) || (impliedVol < 0.0)) && (!flag2)) {
+            std::cout << "Los resultados de volatilidad implicita contienen valores nan o negativos. Recalibrar inputs podría solucionarlo." << std::endl;
+            flag2 = true;
         }
-
+        // if (std::isnan(impliedVol) == true || impliedVol < 0.0) {
+        //     if (flag2 == false) {
+        //         std::cout << "Los resultados de volatilidad implicita contienen valores nan o negativos, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
+        //         flag2 = true;
+        //     }
+        //     continue;
+        // }
 
         impliedVols.push_back(impliedVol);
     }
@@ -199,54 +228,9 @@ int main() {
     }
     std::cout << std::endl;
 
+    saveToCSV(impliedVols, "impliedVols.csv");
+    saveToCSV(realizedVols, "realizedVols.csv");
+
     return 0;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-    // double S = 1209.5;
-    // double K = 1033;
-    // double C0 = 297.653;
-    // double r = 0.9;
-    // double t = 0.11575342465753424;
-    // double v = 0.5; // mi propuesta de vatilidad
-    // double abstol = 1e-4;
-    // double epsilon = 1.0;
-    // int i = 0;
-    // int max_iter = 1e3;
-    // double d1 = D1(S, K, r, v, t);
-    // double d2 = D2(d1, v, t);
-    // double bs = BlackScholes(d1, d2, S, K, r, t);
-    // std::cout << "d1 value = " << d1 << std::endl;
-    // std::cout << "d2 value = " << d2 << std::endl;
-    // std::cout << "Black Scholes value" << bs << std::endl;
-    // v = ImpliedVolatility(epsilon,abstol, i, max_iter, S, K, r, v, t, C0);
-    // std::cout << "Implied volatility = " << v << std::endl;
-
-    // Print the vectors for verification
-    // std::cout << "Price Vector:" << std::endl;
-    // for (const auto& val : data.price) {
-    //     std::cout << val << " ";
-    // }
-    // std::cout << std::endl;
-
-    // std::cout << "UnderPrice Vector:" << std::endl;
-    // for (const auto& val : data.underPrice) {
-    //     std::cout << val << " ";
-    // }
-    // std::cout << std::endl;
-
-    // std::cout << "TimeToMaturity Vector:" << std::endl;
-    // for (const auto& val : data.timeToMaturity) {
-    //     std::cout << val << " ";
-    // }
-    // std::cout << std::endl;
