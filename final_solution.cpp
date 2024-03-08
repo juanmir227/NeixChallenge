@@ -170,13 +170,14 @@ int main() {
         }
         else {
             double realizedVol= RealizedVolatility(currentUnderPrice, currentTimeToMaturity, initUnderPrice, initTimeToMaturity);
+            realizedVols.push_back(realizedVol);
             initUnderPrice = currentUnderPrice;
             initTimeToMaturity = currentTimeToMaturity;
         }
 
-        if (std::isnan(impliedVol) == true) {
+        if (std::isnan(impliedVol) == true || impliedVol < 0.0) {
             if (warned == false) {
-                std::cout << "Tus resultados contienen valores nan, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
+                std::cout << "Tus resultados contienen valores nan o negativos, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
                 warned = true;
             }
             continue;
@@ -184,8 +185,6 @@ int main() {
 
 
         impliedVols.push_back(impliedVol);
-        
-
     }
 
     std::cout << "Implied Volatility:" << std::endl;
