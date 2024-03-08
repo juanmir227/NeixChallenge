@@ -90,7 +90,7 @@ double Vega(double S, double d1, double t) {
 
 double ImpliedVolatility(double epsilon, double abstol, double i, double max_iter, double S,double K,double r,double v,double t,double C0){
 
-        while (epsilon > abstol) {
+    while (epsilon > abstol) {
         if (i > max_iter) {
             std::cout << "El programa ha alcanzado el máximo de iteraciones "<< std::endl;
             break;
@@ -116,6 +116,22 @@ double ImpliedVolatility(double epsilon, double abstol, double i, double max_ite
 }
 
 
+// Function to calculate realized volatility based on adjacent points
+double RealizedVolatility(double underPrice,double timeToMaturity, double initUnderPrice, double initTimeToMaturity) {
+    // Function to calculate logarithmic returns
+    double logReturn = std::log(underPrice / initUnderPrice );
+    double timeDifference = std::abs(timeToMaturity - initTimeToMaturity);
+    double realizedVolatility = 0.0;
+        // Ensure timeDifference is not zero to avoid division by zero
+    if (timeDifference > 1e-6) {
+        double weightedReturn = pow(logReturn,2) / timeDifference;
+        realizedVolatility = std::sqrt((weightedReturn)/2);
+    }
+    return realizedVolatility;
+}
+
+
+
 int main() {
     // Defino variables constantes a utilizar y también agrego mi v inicial para comenzar el loop.
     //  La volatilidad inicial utilizada para el siguiente loop será la obtenida anteriormente.
@@ -125,7 +141,78 @@ int main() {
     const double epsilon = 1.0;
     double v = 0.5;
     const int max_iter = 1e3;
-    std::vector<double> impliedVol;
+    double initUnderPrice = 0.0;
+    double initTimeToMaturity = 0.0;
+    std::vector<double> impliedVols;
+    std::vector<double> realizedVols;
+    bool warned = false;
+
+    // Example usage
+    CSVData data = readCSV("processed_data.csv");
+
+    size_t dataSize = data.price.size();
+    // checkeo que tengan el mismo largo los vectores
+    if (data.underPrice.size() != dataSize || data.timeToMaturity.size() != dataSize) {
+        std::cerr << "Error: Vectors must have the same size." << std::endl;
+        return 1;
+    }
+
+    for (size_t i = 0; i < dataSize; ++i) {
+    // Access elements using the common index
+        double currentPrice = data.price[i]; //C0
+        double currentUnderPrice = data.underPrice[i]; //S
+        double currentTimeToMaturity = data.timeToMaturity[i]; //t
+        int j = 0;
+        double impliedVol = ImpliedVolatility(epsilon, abstol, j, max_iter, currentUnderPrice, K, r, v, currentTimeToMaturity,currentPrice);
+        if (i == 0){
+            initUnderPrice = currentUnderPrice;
+            initTimeToMaturity = currentTimeToMaturity;
+        }
+        else {
+            double realizedVol= RealizedVolatility(currentUnderPrice, currentTimeToMaturity, initUnderPrice, initTimeToMaturity);
+            initUnderPrice = currentUnderPrice;
+            initTimeToMaturity = currentTimeToMaturity;
+        }
+
+        if (std::isnan(impliedVol) == true) {
+            if (warned == false) {
+                std::cout << "Tus resultados contienen valores nan, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
+                warned = true;
+            }
+            continue;
+        }
+
+
+        impliedVols.push_back(impliedVol);
+        
+
+    }
+
+    std::cout << "Implied Volatility:" << std::endl;
+    for (const auto& val : impliedVols) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+
+        std::cout << "Realized Volatility:" << std::endl;
+    for (const auto& val : realizedVols) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+
+}
+
+
+
+
+
+
+
+
+
+
 
     // double S = 1209.5;
     // double K = 1033;
@@ -145,57 +232,6 @@ int main() {
     // std::cout << "Black Scholes value" << bs << std::endl;
     // v = ImpliedVolatility(epsilon,abstol, i, max_iter, S, K, r, v, t, C0);
     // std::cout << "Implied volatility = " << v << std::endl;
-
-    // Example usage
-    CSVData data = readCSV("processed_data.csv");
-
-    size_t dataSize = data.price.size();
-    // checkeo que tengan el mismo largo los vectores
-    if (data.underPrice.size() != dataSize || data.timeToMaturity.size() != dataSize) {
-        std::cerr << "Error: Vectors must have the same size." << std::endl;
-        return 1;
-    }
-
-    for (size_t i = 0; i < dataSize; ++i) {
-    // Access elements using the common index
-        double currentPrice = data.price[i]; //C0
-        double currentUnderPrice = data.underPrice[i]; //S
-        double currentTimeToMaturity = data.timeToMaturity[i]; //t
-        if (i == 0){
-            std::cout << "price:" << currentPrice << std::endl;
-            std::cout << "underprice:" << currentUnderPrice << std::endl;
-            std::cout << "ttm:" << currentTimeToMaturity << std::endl;
-        }
-        int j = 0;
-        double vol = ImpliedVolatility(epsilon, abstol, j, max_iter, currentUnderPrice, K, r, v, currentTimeToMaturity,currentPrice);
-
-
-
-
-        impliedVol.push_back(vol);
-    }
-
-    std::cout << "Implied Volatility:" << std::endl;
-    for (const auto& val : impliedVol) {
-        std::cout << val << " ";
-    }
-    std::cout << std::endl;
-
-    return 0;
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Print the vectors for verification
     // std::cout << "Price Vector:" << std::endl;
