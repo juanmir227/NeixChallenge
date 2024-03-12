@@ -220,7 +220,8 @@ int main() {
     std::cout << std::endl;
     saveToCSV(impliedVols, "impliedVols.csv");
     saveToCSV(realizedVols, "realizedVols.csv");
-
+    
+    std::cout << "Las volatilidades fueron calculadas exitosamente." << std::endl;
 
     return 0;
 
