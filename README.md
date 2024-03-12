@@ -11,7 +11,7 @@ En el caso de la volatilidad implícita se ha utilizado la fórmula de Black-Sch
 
 En el caso del cálculo de la volatilidad implícita se utilizó la fórmula de Black-Scholes la cual estima el precio de una opción a partir de varias variables.
 
-$C= S N(d1) -K \exp{-rt}N(d2)$
+$'C= S N(d1) -K \exp(-rt)N(d2)'$
 
 ![alt text](graphs/volatilityComparison.png)
 
