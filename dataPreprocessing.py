@@ -36,7 +36,9 @@ data.drop(columns = ['bid', 'ask', 'underAsk', 'underBid'], axis = 1, inplace = 
 
 # Transformo las fechas a tipo datetime lo cual me facilita encontrar el time to maturity
 data.created_at = pd.to_datetime(data.created_at)
-
+#Copio y guardo las fechas para usar en los gráficos.
+dates_df = data.created_at.copy()
+dates_df.to_csv('dates.csv', index = False)
 # 20/10/2023 17:30. Por lo consultado por mail, el día de cierre sería este, buscando por internet encontré que el
 # horario suele ser ese también.
 
