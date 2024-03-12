@@ -51,4 +51,4 @@ ax.invert_xaxis()
 plt.tight_layout()
 
 # #Guardo la figura en formato pdf para insertar en el README.
-plt.savefig('volatilityComparison.pdf')
+plt.savefig('volatilityComparison.png')

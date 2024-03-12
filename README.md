@@ -1,2 +1,2 @@
 Readme
-volatilityComparison.pdf
+![alt text](volatilityComparison.png)
