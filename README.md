@@ -1,4 +1,4 @@
 Readme
-![alt text](volatilityComparison.png)
+![alt text](graphs/volatilityComparison.png)
 
-![alt text](noSolution.png)
+![alt text](graphs/noSolution.png)
