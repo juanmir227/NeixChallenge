@@ -41,4 +41,4 @@ plt.ylabel('BlackScholes() - data', fontsize =14)
 plt.grid(alpha = 0.5)
 plt.tight_layout()
 # Se guarda el gráfico.
-plt.savefig('graphs/noSolution.png')
+plt.savefig('noSolution.png')

@@ -41,4 +41,4 @@ plt.grid(alpha = 0.5)
 plt.tight_layout()
 
 # #Guardo la figura en formato png para insertar en el README.
-plt.savefig('graphs/volatilityComparison.png')
+plt.savefig('volatilityComparison.png')
