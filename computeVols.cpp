@@ -141,7 +141,6 @@ double ImpliedVolatility(double epsilon, double abstol, double max_iter, double 
         double function_value = estimation - C0;
         double Vega = S * F(d1) * sqrt(t);
         v = -function_value / Vega + v;
-
         epsilon = std::abs(function_value);
     }
     return v;
