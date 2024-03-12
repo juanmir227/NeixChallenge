@@ -79,7 +79,7 @@ En un segundo archivo llamado noSolution.py, se incorporó un gráfico extra par
 ## Resultados obtenidos
 
 A partir del programa desarrollado, se obtuvieron dos tiras de datos para la volatilidad implícita y la volatilidad realizada. En el caso de la volatilidad implícita, se observó que existía la posibilidad de que no hubiera solución para la ecuacion $0 = BlackSholes() - C$. Esto se vió reflejado en que en varias iteraciones del algoritmo, en particular cuando los time to maturity empezaban a ser bajos, terminaban no convergiendo y generando un valor Nan en el vector de soluciones. Esta situación se puede observar en el siguiente gráfico:
-![alt text](graphs/noSolution.png)
+![alt text](noSolution.png)
 
 Sin embargo, en la mayoría de los puntos no se tuvo este problema. Pero durante un período concentrado en la parte final de los datos, no se logró obtener puntos para la volatilidad implícita en la mayoría de los puntos calculados, por lo que no se tienen valores para esos casos.
 
@@ -88,7 +88,7 @@ En los casos no singulares, el algoritmo de root finding funcionó a la perfecci
 En el caso de la volatilidad implícita, no se tuvieron problemas a la hora de realizar su cálculo. Se observó que los resultados obtenidos para la misma fueron mucho mas volátiles que los obtenidos para la volatilidad implícita. Esto se debe a la fórmula utilizada para el cálculo de la volatilidad realizada y su alto grado seguimiento del estado de la volatilidad actual del activo al tomar solo el punto anterior para calcularlo. Esto podría haberse disminuido utilizando una mayor cantidad de puntos para el cálculo de esta variable.
 
 A continuación se observa el gráfico de los resultados obtenidos para ambas variables:
-![alt text](graphs/volatilityComparison.png)
+![alt text](volatilityComparison.png)
 
 De este gráfico se desprendieron dos conclusiones notables. Tanto en la volatilidad implícita como en la realizada, al acercarse al time to maturity su volatilidad parece ir en aumento, incluso observando picos máximos bien marcados en ambos casos.
 La segunda conclusión, se observó al comparar ambas volatilidades teniendo en cuenta que la volatilidad implícita estaría anticipando la esperanza de volatilidad del activo en el futuro, y la volatilidad realizada calculada poco tiempo después, mantuvo una correlación muy alta con lo observado para la implícita. Es decir, que poco tiempo después de aumentar la volatilidad implícita esto se vió reflejado en la volatilidad realizada. Mostrando que efectivamente este puede ser un indicador de la volatilidad futura del activo.
