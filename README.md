@@ -79,6 +79,7 @@ En un segundo archivo llamado noSolution.py, se incorporó un gráfico extra par
 ## Resultados obtenidos
 
 A partir del programa desarrollado, se obtuvieron dos tiras de datos para la volatilidad implícita y la volatilidad realizada. En el caso de la volatilidad implícita, se observó que existía la posibilidad de que no hubiera solución para la ecuacion $0 = BlackSholes() - C$. Esto se vió reflejado en que en varias iteraciones del algoritmo, en particular cuando los time to maturity empezaban a ser bajos, terminaban no convergiendo y generando un valor Nan en el vector de soluciones. Esta situación se puede observar en el siguiente gráfico:
+
 ![alt text](noSolution.png)
 
 Sin embargo, en la mayoría de los puntos no se tuvo este problema. Pero durante un período concentrado en la parte final de los datos, no se logró obtener puntos para la volatilidad implícita en la mayoría de los puntos calculados, por lo que no se tienen valores para esos casos.
