@@ -1,0 +1,4 @@
+Decisiones de diseño:
+antes del main()
+// Decidi definir dos variables para guardarme los puntos anteriores en vez de un vector para no tener que cargarlo todas
+// las veces.

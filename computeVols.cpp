@@ -134,7 +134,7 @@ double ImpliedVolatility(double epsilon, double abstol, double max_iter, double 
             break;
         }
         i++;
-        // utilizando un método de root finding llamado newton-raphson
+        // uso un método de root finding para obtener el valor de la volatilidad.
         double d1 = D1(S, K, r, v, t);
         double d2 = D2(d1, v, t);
         double estimation = BlackScholes(d1, d2, S, K, r, t);
@@ -147,13 +147,13 @@ double ImpliedVolatility(double epsilon, double abstol, double max_iter, double 
     return v;
 }
 
-// Function to calculate realized volatility based on adjacent points
+// Esta función calcula la volatilidad realizada tomando el punto actual y el anterior para calcularla.
 double RealizedVolatility(double underPrice,double timeToMaturity, double initUnderPrice, double initTimeToMaturity) {
-    // Function to calculate logarithmic returns
+    // Calculo retornos logarítmicos.
     double logReturn = std::log(underPrice / initUnderPrice );
     double timeDifference = std::abs(timeToMaturity - initTimeToMaturity);
     double realizedVolatility = 0.0;
-    // Ensure timeDifference is not zero to avoid division by zero
+    // Me aseguro de no estar dividiendo por 0.
     if (timeDifference > 1e-6) {
         double weightedReturn = pow(logReturn,2) / timeDifference;
         realizedVolatility = std::sqrt((weightedReturn)/2);
@@ -161,42 +161,39 @@ double RealizedVolatility(double underPrice,double timeToMaturity, double initUn
     return realizedVolatility;
 }
 
-// Decidi definir dos variables para guardarme los puntos anteriores en vez de un vector para no tener que cargarlo todas
-// las veces.
 int main() {
-    // Defino variables constantes a utilizar y también agrego mi v inicial para comenzar el loop.
-    //  La volatilidad inicial utilizada para el siguiente loop será la obtenida anteriormente.
+    // Defino variables y vectores a utilizar y también agrego mi estimación de volatillidad inicial para comenzar el loop.
     double v = 0.5;
+    // Defino dos variables que se utilizarán al calcular la volatilidad realizada para guardar el punto anterior.
     double initUnderPrice = 0.0;
     double initTimeToMaturity = 0.0;
     std::vector<double> impliedVols;
     std::vector<double> realizedVols;
+    // Genero flags para marcar warnings.
     bool flag1 = false;
     bool flag2 = false;
+
+    // Inicializo instancias de los structs.
     Constantes constantes;
-    // Example usage
     CSVData data = readCSV("processedData.csv");
-    // const double K = 1033;
-    // const double r = 0.9;
-    // const double abstol = 1e-4;
-    // const double epsilon = 1.0;
-    // const int max_iter = 1e3;
 
+    // Genero variable con el largo del vector price que debería ser igual a los demás.
     size_t dataSize = data.price.size();
-    // checkeo que tengan el mismo largo los vectores
 
+    // Checkeo que los vectores tengan el mismo largo. En caso de que no lo sean activo la flag y printeo un warning.
     if ((data.underPrice.size() != dataSize || data.timeToMaturity.size() != dataSize) && (!flag1)) {
         std::cout << "Cuidado, los vectores cargados del csv no tienen el mismo largo." << std::endl;
         flag1 = true;
     }
 
     for (size_t i = 0; i < dataSize; ++i) {
-    // Access elements using the common index
-        double currentPrice = data.price[i]; //C0
-        double currentUnderPrice = data.underPrice[i]; //S
-        double currentTimeToMaturity = data.timeToMaturity[i]; //t
-        // int j = 0;
+        // Defino los datos utilizados en esta vuelta del loop a partir de los vectores del CSV.
+        double currentPrice = data.price[i]; 
+        double currentUnderPrice = data.underPrice[i];
+        double currentTimeToMaturity = data.timeToMaturity[i];
+        // calculo volatilidad implicita para estos datos.
         double impliedVol = ImpliedVolatility(constantes.epsilon, constantes.abstol, constantes.max_iter, currentUnderPrice, constantes.K, constantes.r, v, currentTimeToMaturity,currentPrice);
+        // Dado que la volatilidad realizada la calculo a partir del segundo punto, distingo i = 0 de los demás.
         if (i == 0){
             initUnderPrice = currentUnderPrice;
             initTimeToMaturity = currentTimeToMaturity;
@@ -207,31 +204,20 @@ int main() {
             initUnderPrice = currentUnderPrice;
             initTimeToMaturity = currentTimeToMaturity;
         }
-
+        // En caso de tener resultados nan o negativos, activo la segunda flag y printeo un warning.
         if ((std::isnan(impliedVol) || (impliedVol < 0.0)) && (!flag2)) {
             std::cout << "Los resultados de volatilidad implicita contienen valores nan o negativos. Recalibrar inputs podría solucionarlo." << std::endl;
             flag2 = true;
         }
-
+        // Guardo el valor de la volatilidad calculada en el vector.
         impliedVols.push_back(impliedVol);
     }
 
-    // std::cout << "Implied Volatility:" << std::endl;
-    // for (const auto& val : impliedVols) {
-    //     std::cout << val << " ";
-    // }
-    // std::cout << std::endl;
-
-    //     std::cout << "Realized Volatility:" << std::endl;
-    // for (const auto& val : realizedVols) {
-    //     std::cout << val << " ";
-    // }
-    std::cout << std::endl;
+    // Guardo en archivos csv los valores obtenidos para las volatilidades implícita y realizada.
     saveToCSV(impliedVols, "impliedVols.csv");
     saveToCSV(realizedVols, "realizedVols.csv");
     
     std::cout << "Las volatilidades fueron calculadas exitosamente." << std::endl;
 
     return 0;
-
 }
