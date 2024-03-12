@@ -41,7 +41,7 @@ En el caso de la volatilidad realizada, se realizó el cálculo utilizando la de
 
 Tomando
 
-$\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{i=N} \frac{r_{i}}{t_{i}- t_{i-1}}}$
+$\sigma = \sqrt{\frac{1}{N}\sum_{i=1} \frac{r_{i}}{t_{i}- t_{i-1}}}$
 
 donde
 
