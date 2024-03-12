@@ -71,7 +71,7 @@ void saveToCSV(const std::vector<double>& vec, const std::string& filename) {
     }
 
     // Write header
-    file << "Price" << std::endl;
+    file << "Volatility" << std::endl;
 
     // Write data
     for (size_t i = 0; i < vec.size(); ++i) {
@@ -207,19 +207,20 @@ int main() {
         impliedVols.push_back(impliedVol);
     }
 
-    std::cout << "Implied Volatility:" << std::endl;
-    for (const auto& val : impliedVols) {
-        std::cout << val << " ";
-    }
-    std::cout << std::endl;
+    // std::cout << "Implied Volatility:" << std::endl;
+    // for (const auto& val : impliedVols) {
+    //     std::cout << val << " ";
+    // }
+    // std::cout << std::endl;
 
-        std::cout << "Realized Volatility:" << std::endl;
-    for (const auto& val : realizedVols) {
-        std::cout << val << " ";
-    }
+    //     std::cout << "Realized Volatility:" << std::endl;
+    // for (const auto& val : realizedVols) {
+    //     std::cout << val << " ";
+    // }
     std::cout << std::endl;
     saveToCSV(impliedVols, "impliedVols.csv");
     saveToCSV(realizedVols, "realizedVols.csv");
+
 
     return 0;
 
