@@ -119,21 +119,19 @@ double Vega(double S, double d1, double t) {
     return S*F(d1)*sqrt(t);
 }
 
-double ImpliedVolatility(double epsilon, double abstol, double i, double max_iter, double S,double K,double r,double v,double t,double C0){
-
+double ImpliedVolatility(double epsilon, double abstol, double max_iter, double S,double K,double r,double v,double t,double C0){
+    int i = 0;
     while (epsilon > abstol) {
         if (i > max_iter) {
             std::cout << "El programa ha alcanzado el máximo de iteraciones "<< std::endl;
             break;
         }
-
         i++;
         double d1 = D1(S, K, r, v, t);
         double d2 = D2(d1, v, t);
         double estimation = BlackScholes(d1, d2, S, K, r, t);
         double function_value = estimation - C0;
         double Vega = S * F(d1) * sqrt(t);
-
         v = -function_value / Vega + v;
         epsilon = std::abs(function_value);
     }
@@ -168,7 +166,7 @@ int main() {
     bool flag2 = false;
     Constantes constantes;
     // Example usage
-    CSVData data = readCSV("processed_data.csv");
+    CSVData data = readCSV("processedData.csv");
     // const double K = 1033;
     // const double r = 0.9;
     // const double abstol = 1e-4;
@@ -188,8 +186,8 @@ int main() {
         double currentPrice = data.price[i]; //C0
         double currentUnderPrice = data.underPrice[i]; //S
         double currentTimeToMaturity = data.timeToMaturity[i]; //t
-        int j = 0;
-        double impliedVol = ImpliedVolatility(constantes.epsilon, constantes.abstol, j, constantes.max_iter, currentUnderPrice, constantes.K, constantes.r, v, currentTimeToMaturity,currentPrice);
+        // int j = 0;
+        double impliedVol = ImpliedVolatility(constantes.epsilon, constantes.abstol, constantes.max_iter, currentUnderPrice, constantes.K, constantes.r, v, currentTimeToMaturity,currentPrice);
         if (i == 0){
             initUnderPrice = currentUnderPrice;
             initTimeToMaturity = currentTimeToMaturity;
@@ -205,13 +203,6 @@ int main() {
             std::cout << "Los resultados de volatilidad implicita contienen valores nan o negativos. Recalibrar inputs podría solucionarlo." << std::endl;
             flag2 = true;
         }
-        // if (std::isnan(impliedVol) == true || impliedVol < 0.0) {
-        //     if (flag2 == false) {
-        //         std::cout << "Los resultados de volatilidad implicita contienen valores nan o negativos, estos puntos serán eliminados. Recalibrar inputs podría solucionarlo." << std::endl;
-        //         flag2 = true;
-        //     }
-        //     continue;
-        // }
 
         impliedVols.push_back(impliedVol);
     }
@@ -227,7 +218,6 @@ int main() {
         std::cout << val << " ";
     }
     std::cout << std::endl;
-
     saveToCSV(impliedVols, "impliedVols.csv");
     saveToCSV(realizedVols, "realizedVols.csv");
 

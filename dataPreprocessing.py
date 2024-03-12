@@ -14,8 +14,8 @@ def get_days_between(datePast, dateFuture):
 data = pd.read_csv('Exp_Octubre.csv', sep=';')
 
 # Realizando una exploración de los datos se hallaron algunos datos faltantes, sin embargo dado que representaban
-# menos del 1% de las filas totales fueron descartados. SIn embargo, se tendrá en cuenta al desarrollar el programa
-# en C++ algún seguro que tenga en cuenta la posibilidad de estas apariciones.
+# menos del 1% de las filas totales fueron descartados. De esta manera solucionamos posibles errores de faltante de datos
+# para este problema puntual
 data.drop(data[(data.bid == "\\N") |  (data.ask =="\\N") | (data.underBid == "\\N") | (data.underAsk == "\\N")].index, inplace = True)
 
 # Dado que no voy a necesitar la descripcion, ni el valor strike ya que lo voy a agregar aparte en el programa en C++,
