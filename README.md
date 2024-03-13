@@ -1,8 +1,8 @@
-# Cálculo de la volatildiad implícita y realizada
+# Cálculo de la volatilidad implícita y realizada
 
 ## Introducción
 
-En este repositorio se encuentran los archivos necesarios para poder realizar el cálculo de la volatilidad implícita y realizada para una serie de datos recibidos para este challenge.
+En este repositorio se encuentran los archivos necesarios para poder realizar el cálculo de la volatilidad implícita y realizada para la serie de datos Exp_Octubre.csv recibido para este challenge.
 En el caso de la volatilidad implícita se ha utilizado la fórmula de Black-Scholes y el método de Newton-Raphson para cálculo de raices para obtener una estimación de la misma. En el caso de la volatiliad realizada se ha utilizado la desviación standard modificada para tener en cuenta la falta de periodicidad temporal en los datos obtenidos. A continuación se darán instrucciones sobre como utilizar el programa y una descripción detallada de la resolución del problema.
 
 ## Cómo usar este programa
@@ -17,7 +17,7 @@ Para su correcto uso se deberán correr los archivos de la siguiente manera:
 
 En este caso deberías finalizar con
 
-- Dos archivos, implicitVols.csv y realizedVols.csv las cuales son los resultados obtenidos por el algoritmo.
+- Dos archivos, implicitVols.csv y realizedVols.csv las cuales son los resultados obtenidos por el algoritmo. Y también dates.csv un archivo con las fechas utilizadas en los gráficos.
 - Dos gráficos en formato .png, el primero volatilityComparison.png el cual muestra los resultados obtenidos para las volatilidades y el segundo noSolution.png el cual muestra la falta de solución para el modelo en algunos casos particulares.
 
 ## Fundamentos matemáticos
@@ -45,18 +45,18 @@ $Vega = \frac{dC}{d\sigma} = K F(d1) \sqrt(t)$
 
 donde F es la función de distribución normal.
 
-En nuestro problema para calcular la volatilidad implícita, se utilizó un algoritmo de root finding llamado [Newton-Raphson](https://en.wikipedia.org/wiki/Newton%27s_method) el cual consiste en compar el valor de la fórmula de Black-Scholes con los valores de la opción que se habían recibido y achicar la diferencia variando el valor de la volatilidad. En caso de que la diferencia fuera menor a un threshold el algoritmo considera esa volatilidad como la implícita para ese punto.
-La variación de la volatilidad se obtiene utilizando la derivada Vega de manera
+En nuestro problema para calcular la volatilidad implícita, se utilizó un algoritmo de root finding llamado [Newton-Raphson](https://en.wikipedia.org/wiki/Newton%27s_method) el cual consiste en compar el valor de la fórmula de Black-Scholes con los valores de la opción que se habían recibido y achicar la diferencia variando el valor de la volatilidad. En caso de que la diferencia fuera menor a un threshold el algoritmo consideró esa volatilidad como la implícita para ese punto.
+La variación de la volatilidad en cada paso se obtuvo utilizando la derivada Vega de manera:
 
 $v = - \frac{(BlackScholes() - data)}{Vega + v}$
 
 ### Volatilidad Realizada
 
-En el caso de la volatilidad realizada, se realizó el cálculo utilizando la desviación standard de los retornos logaritmicos. Sin embargo, algo importante a tener en cuenta, fue que los puntos no se encontraban equiespaciados generando entonces la necesidad de agregar esta diferencia a la fórmula. Se incorporó un divisor de la diferencia entre los tiempos de los puntos, el cual funcionaba como peso. De esta manera, para puntos que se encontraran muy cerca temporalmente, se esperaria que la variación en su precio también fuera pequeña, y en caso de que no lo fuera quedaría efectivamente pesado por la distancia temporal entre los puntos.
+En el caso de la volatilidad realizada, se realizó el cálculo utilizando la desviación standard de los retornos logaritmicos. Sin embargo, algo importante a tener en cuenta, fue que los puntos no se encontraban equiespaciados generando entonces la necesidad de agregar esta diferencia a la fórmula. Se incorporó un divisor con la diferencia entre los tiempos de los puntos, el cual funcionaba como peso. De esta manera, para puntos que se encontraran muy cerca temporalmente, se esperaria que la variación en su precio también fuera pequeña, y en caso de que no lo fuera se vería reflejado en el valor de la volatilidad realizada obtenido.
 
-Tomando
+Se utilizó
 
-$\sigma = \sqrt{\frac{1}{N}\sum_{i=1} \frac{r_{i}}{t_{i}- t_{i-1}}}$
+$\sigma = \sqrt{\frac{1}{N}\sum_{i=1} \frac{r_{i}^{2}}{t_{i}- t_{i-1}}}$
 
 donde
 
