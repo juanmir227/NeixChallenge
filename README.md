@@ -3,7 +3,22 @@
 ## Introducción
 
 En este repositorio se encuentran los archivos necesarios para poder realizar el cálculo de la volatilidad implícita y realizada para una serie de datos recibidos para este challenge.
-En el caso de la volatilidad implícita se ha utilizado la fórmula de Black-Scholes y el método de Newton-Raphson para cálculo de raices para obtener una estimación de la misma. En el caso de la volatiliad realizada se ha utilizado la desviación standard. La descripción matemática del problema será descrita a continuación.
+En el caso de la volatilidad implícita se ha utilizado la fórmula de Black-Scholes y el método de Newton-Raphson para cálculo de raices para obtener una estimación de la misma. En el caso de la volatiliad realizada se ha utilizado la desviación standard modificada para tener en cuenta la falta de periodicidad temporal en los datos obtenidos. A continuación se darán instrucciones sobre como utilizar el programa y una descripción detallada de la resolución del problema.
+
+## Cómo usar este programa
+
+Para su correcto uso se deberán correr los archivos de la siguiente manera:
+
+1. Clonar el repositorio
+2. Correr el archivo dataPreprocessing.py
+3. Correr el programa computeVols.cpp
+4. Correr generateGraph.py
+5. Correr noSolution.py
+
+En este caso deberías finalizar con
+
+- Dos archivos, implicitVols.csv y realizedVols.csv las cuales son los resultados obtenidos por el algoritmo.
+- Dos gráficos en formato .png, el primero volatilityComparison.png el cual muestra los resultados obtenidos para las volatilidades y el segundo noSolution.png el cual muestra la falta de solución para el modelo en algunos casos particulares.
 
 ## Fundamentos matemáticos
 
@@ -91,5 +106,9 @@ En el caso de la volatilidad implícita, no se tuvieron problemas a la hora de r
 A continuación se observa el gráfico de los resultados obtenidos para ambas variables:
 ![alt text](volatilityComparison.png)
 
-De este gráfico se desprendieron dos conclusiones notables. Tanto en la volatilidad implícita como en la realizada, al acercarse al time to maturity su volatilidad parece ir en aumento, incluso observando picos máximos bien marcados en ambos casos.
-La segunda conclusión, se observó al comparar ambas volatilidades teniendo en cuenta que la volatilidad implícita estaría anticipando la esperanza de volatilidad del activo en el futuro, y la volatilidad realizada calculada poco tiempo después, mantuvo una correlación muy alta con lo observado para la implícita. Es decir, que poco tiempo después de aumentar la volatilidad implícita esto se vió reflejado en la volatilidad realizada. Mostrando que efectivamente este puede ser un indicador de la volatilidad futura del activo.
+Como se hab♂a indicado anteriormente, en el caso de la volatilidad implícita, no fue posible realizar el cálculo de la misma para la mayoría de los datos cuando el time to maturity se volvió lo suficientemente pequeño.
+
+De este gráfico se desprendieron dos conclusiones notables:
+
+- Tanto en la volatilidad implícita como en la realizada, al acercarse al time to maturity su volatilidad va en aumento, incluso observando picos máximos bien marcados en ambos casos, para luego descender abruptamente a valores mucho menores. Esto podría deberse a que la opción deja de ser interesante para el cliente/inversor a partir de un tiempo determinado y por lo tanto su volatilidad disminuye de manera considerable al haber menos intercambio de la misma.
+- Teniendo en cuenta que la volatilidad implícita estaría anticipando la esperanza de volatilidad del activo en el futuro, la volatilidad realizada calculada poco tiempo después mantuvo una correlación muy alta con lo observado para la implícita. Es decir, que poco tiempo después de aumentar la volatilidad implícita esto se vió reflejado en la volatilidad realizada. Mostrando que efectivamente este puede ser un indicador de la volatilidad futura del activo. Esto se puede observar claramente, por ejemplo, en el caso del pico máximo observado, donde la volatilidad implícita presenta un salto muy grande y poco tiempo después se ve reflejado en la volatilidad realizada.
